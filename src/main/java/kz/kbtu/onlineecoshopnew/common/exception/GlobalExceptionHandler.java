@@ -8,6 +8,7 @@ import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleUserAlreadyExists;
 import kz.kbtu.onlineecoshopnew.common.exception.category.HandleCategoryAlreadyExists;
 import kz.kbtu.onlineecoshopnew.common.exception.category.HandleCategoryNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderAlreadyCompleted;
+import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderCanNotBeCancled;
 import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.product.HandleNotEnoughProductQuantity;
 import kz.kbtu.onlineecoshopnew.common.exception.product.HandleProductNotFound;
@@ -67,6 +68,11 @@ public class GlobalExceptionHandler {
             errors.putIfAbsent(fieldError.getField(), fieldError.getDefaultMessage());
         }
         return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST, "Validation failed", errors);
+    }
+
+    @ExceptionHandler(HandleOrderCanNotBeCancled.class)
+    public ResponseEntity<ApiResponse<Void>> handleOrderCanNotBeCancled(HandleOrderCanNotBeCancled exception) {
+        return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
 }
