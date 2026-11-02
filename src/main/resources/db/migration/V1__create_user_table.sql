@@ -12,10 +12,8 @@ create table users(
                       created_at timestamptz not null default now(),
                       updated_at timestamptz not null default now(),
 
-                      constraint uq_users_nickname unique (email),
+                      constraint uq_users_email unique (email),
                       constraint uq_users_phone unique (phone_number),
-                      constraint chk_user_nickname_lower check ( email = lower(email) )
+                      constraint chk_users_email_lower check ( email = lower(email) )
 );
-
-create unique index uq_users_nickname_lower on users (lower(nickname));
 

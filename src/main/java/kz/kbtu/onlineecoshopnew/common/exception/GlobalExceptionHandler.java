@@ -5,6 +5,10 @@ import kz.kbtu.onlineecoshopnew.common.dto.ApiResponse;
 import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleInvalidCredentials;
 import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleInvalidRefreshToken;
 import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleUserAlreadyExists;
+import kz.kbtu.onlineecoshopnew.common.exception.category.HandleCategoryAlreadyExists;
+import kz.kbtu.onlineecoshopnew.common.exception.category.HandleCategoryNotFound;
+import kz.kbtu.onlineecoshopnew.common.exception.product.HandleNotEnoughProductQuantity;
+import kz.kbtu.onlineecoshopnew.common.exception.product.HandleProductNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleInvalidOldPassword;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotFoundByEmail;
@@ -22,7 +26,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({HandleUserNotFound.class, HandleUserNotFoundByEmail.class})
+    @ExceptionHandler({HandleUserNotFound.class, HandleUserNotFoundByEmail.class,
+            HandleProductNotFound.class, HandleCategoryNotFound.class})
     public ResponseEntity<ApiResponse<Void>> handleNotFound(RuntimeException exception) {
         return ApiResponse.errorResponse(HttpStatus.NOT_FOUND, exception.getMessage());
     }
@@ -32,9 +37,14 @@ public class GlobalExceptionHandler {
         return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
-    @ExceptionHandler(HandleUserAlreadyExists.class)
-    public ResponseEntity<ApiResponse<Void>> handleUserAlreadyExists(HandleUserAlreadyExists exception) {
+    @ExceptionHandler({HandleUserAlreadyExists.class, HandleCategoryAlreadyExists.class})
+    public ResponseEntity<ApiResponse<Void>> handleConflict(RuntimeException exception) {
         return ApiResponse.errorResponse(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    @ExceptionHandler(HandleNotEnoughProductQuantity.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotEnoughProductQuantity(HandleNotEnoughProductQuantity exception) {
+        return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
     @ExceptionHandler({HandleInvalidCredentials.class, HandleInvalidRefreshToken.class})
