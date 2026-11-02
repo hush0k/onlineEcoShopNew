@@ -1,38 +1,50 @@
 package kz.kbtu.onlineecoshopnew.order.orderHistory;
 
 import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderAlreadyCompleted;
+import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderCanNotBeCancled;
 
-import java.util.List;
+import java.util.EnumSet;
+import java.util.Set;
 
 public enum OrderStatus {
-    CREATED(1, List.of(2, 9)),
-    PENDING_PAYMENT(2, List.of(3, 9)),
-    PAID(3, List.of(4, 9)),
-    PROCESSING(4, List.of(5, 9)),
-    SHIPPED(5, List.of(6, 9)),
-    IN_TRANSIT(6, List.of(7, 9)),
-    READY_FOR_PICKUP(7, List.of(8, 9)),
-    DELIVERED(8, List.of(10)),
-    CANCELLED(9, List.of(10)),
-    RETURNED(10, List.of());
+    CREATED, PENDING_PAYMENT, PAID, PROCESSING, SHIPPED,
+    IN_TRANSIT, READY_FOR_PICKUP, DELIVERED, CANCELLED, RETURNED;
 
-    OrderStatus(Integer sequenceNumber, List<Integer> possibleNextStep) {
-        this.sequenceNumber = sequenceNumber;
-        this.possibleNextStep = possibleNextStep;
-    }
+    private Set<OrderStatus> allowedNext;
 
-    public OrderStatus getNextStep(OrderStatus status) {
-        Integer nextStep = possibleNextStep.get(sequenceNumber + 1);
-        if (nextStep == null || nextStep >= 9) {
-            throw new HandleOrderAlreadyCompleted(this);
-        }
-        return Enum.valueOf(OrderStatus.class, nextStep.toString());
+    static {
+        CREATED.allowedNext          = EnumSet.of(PENDING_PAYMENT, CANCELLED);
+        PENDING_PAYMENT.allowedNext  = EnumSet.of(PAID, CANCELLED);
+        PAID.allowedNext             = EnumSet.of(PROCESSING, CANCELLED);
+        PROCESSING.allowedNext       = EnumSet.of(SHIPPED, CANCELLED);
+        SHIPPED.allowedNext          = EnumSet.of(IN_TRANSIT, CANCELLED);
+        IN_TRANSIT.allowedNext       = EnumSet.of(READY_FOR_PICKUP, CANCELLED);
+        READY_FOR_PICKUP.allowedNext = EnumSet.of(DELIVERED, CANCELLED);
+        DELIVERED.allowedNext        = EnumSet.of(RETURNED);
+        CANCELLED.allowedNext        = EnumSet.noneOf(OrderStatus.class);
+        RETURNED.allowedNext         = EnumSet.noneOf(OrderStatus.class);
     }
 
     public boolean canTransitionTo(OrderStatus next) {
-        return possibleNextStep.contains(next.sequenceNumber);
+        return allowedNext.contains(next);
     }
 
-    private Integer sequenceNumber;
-    private List<Integer> possibleNextStep;
+    public boolean isFinal() {
+        return allowedNext.isEmpty();
+    }
+
+    public OrderStatus next() {
+        return allowedNext.stream()
+                .filter(s -> s != CANCELLED && s != RETURNED)
+                .findFirst()
+                .orElseThrow(() -> new HandleOrderAlreadyCompleted(this));
+    }
+
+    public OrderStatus cancel() {
+        if (!canTransitionTo(CANCELLED)) {
+            throw new HandleOrderCanNotBeCancled(this);
+        }
+        return CANCELLED;
+    }
+
 }
