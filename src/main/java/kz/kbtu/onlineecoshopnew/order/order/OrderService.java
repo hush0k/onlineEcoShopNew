@@ -3,6 +3,7 @@ package kz.kbtu.onlineecoshopnew.order.order;
 
 import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderAlreadyCompleted;
 import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderNotFound;
+import kz.kbtu.onlineecoshopnew.order.order.dto.request.OrderCreateDto;
 import kz.kbtu.onlineecoshopnew.order.order.dto.request.OrderStatusUpdateDto;
 import kz.kbtu.onlineecoshopnew.order.order.dto.request.OrderUpdateDto;
 import kz.kbtu.onlineecoshopnew.order.order.dto.response.OrderResponseDto;
@@ -57,7 +58,7 @@ public class OrderService {
         OrderStatus current = order.getStatus();
 
         if (!current.canTransitionTo(dto.status())) {
-            throw new HandleOrderAlreadyCompleted(current, dto.status());
+            throw new HandleOrderAlreadyCompleted(current);
         }
 
         order.setStatus(dto.status());
@@ -80,4 +81,22 @@ public class OrderService {
     public boolean isOwner(Long orderId, String email) {
         return orderRepository.existsByIdAndUserEmail(orderId, email);
     }
+
+    public OrderResponseDto updateOrderStatus(Long orderId) {
+        Order order = orderIsExists(orderId);
+        OrderStatus nextStatus = order.getStatus().next();
+        order.setStatus(nextStatus);
+        Order updatedOrder = orderRepository.save(order);
+        return orderMapper.toOrderResponseDto(updatedOrder);
+    }
+
+    public OrderResponseDto cancelOrder(Long orderId) {
+        Order order = orderIsExists(orderId);
+        OrderStatus cancelStatus = order.getStatus().cancel();
+        order.setStatus(cancelStatus);
+        Order updatedOrder = orderRepository.save(order);
+        return orderMapper.toOrderResponseDto(updatedOrder);
+    }
+
+
 }
