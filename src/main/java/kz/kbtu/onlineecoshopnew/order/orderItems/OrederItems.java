@@ -34,7 +34,7 @@ public class OrederItems {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order-items-seq")
     @SequenceGenerator(
             name = "order-items-seq",
-            sequenceName = "order-items-seq-gen",
+            sequenceName = "order_items_seq",
             allocationSize = 50
     )
     private Long id;
