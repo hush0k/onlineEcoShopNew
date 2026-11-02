@@ -29,7 +29,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({HandleUserNotFound.class, HandleUserNotFoundByEmail.class,
-            HandleProductNotFound.class, HandleCategoryNotFound.class, HandleOrderNotFound.class})
+            HandleProductNotFound.class, HandleCategoryNotFound.class, HandleOrderNotFound.class,})
     public ResponseEntity<ApiResponse<Void>> handleNotFound(RuntimeException exception) {
         return ApiResponse.errorResponse(HttpStatus.NOT_FOUND, exception.getMessage());
     }
