@@ -1,0 +1,84 @@
+package kz.kbtu.onlineecoshopnew.order.orderItems;
+
+import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderNotFound;
+import kz.kbtu.onlineecoshopnew.common.exception.orderItems.HandleOrderItemNotFound;
+import kz.kbtu.onlineecoshopnew.common.exception.product.HandleProductNotFound;
+import kz.kbtu.onlineecoshopnew.order.order.Order;
+import kz.kbtu.onlineecoshopnew.order.order.OrderRepository;
+import kz.kbtu.onlineecoshopnew.order.orderItems.dto.request.OrderItemCreateDto;
+import kz.kbtu.onlineecoshopnew.order.orderItems.dto.request.OrderItemUpdateDto;
+import kz.kbtu.onlineecoshopnew.order.orderItems.dto.response.OrderItemResponseDto;
+import kz.kbtu.onlineecoshopnew.product.Product.Product;
+import kz.kbtu.onlineecoshopnew.product.Product.ProductRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class OrderItemsService {
+
+    private final OrderItemsRepository orderItemsRepository;
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
+    private final OrderItemsMapper orderItemsMapper;
+
+    private OrederItems orderItemIsExists(Long orderId, Long orderItemId) {
+        return orderItemsRepository.findByIdAndOrderId(orderItemId, orderId).orElseThrow(
+                () -> new HandleOrderItemNotFound(orderItemId)
+        );
+    }
+
+    private Order orderIsExists(Long orderId) {
+        return orderRepository.findById(orderId).orElseThrow(
+                () -> new HandleOrderNotFound(orderId)
+        );
+    }
+
+    private Product productIsExists(UUID productId) {
+        return productRepository.findById(productId).orElseThrow(
+                () -> new HandleProductNotFound(productId)
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public OrderItemResponseDto getOrderItem(Long orderId, Long orderItemId) {
+        return orderItemsMapper.toOrderItemResponseDto(orderItemIsExists(orderId, orderItemId));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderItemResponseDto> getOrderItems(Long orderId, Pageable pageable) {
+        orderIsExists(orderId);
+        return orderItemsRepository.findAllByOrderId(orderId, pageable).map(orderItemsMapper::toOrderItemResponseDto);
+    }
+
+    public OrderItemResponseDto createOrderItem(Long orderId, OrderItemCreateDto dto) {
+        Order order = orderIsExists(orderId);
+        Product product = productIsExists(dto.productId());
+        OrederItems orderItem = OrederItems.builder()
+                .order(order)
+                .product(product)
+                .quantity(dto.quantity())
+                .build();
+        orderItemsRepository.save(orderItem);
+        return orderItemsMapper.toOrderItemResponseDto(orderItem);
+    }
+
+    public OrderItemResponseDto updateOrderItem(Long orderId, Long orderItemId, OrderItemUpdateDto dto) {
+        OrederItems orderItem = orderItemIsExists(orderId, orderItemId);
+        orderItemsMapper.updateOrderItemFromDto(dto, orderItem);
+        orderItemsRepository.flush();
+        return orderItemsMapper.toOrderItemResponseDto(orderItem);
+    }
+
+    public void deleteOrderItem(Long orderId, Long orderItemId) {
+        OrederItems orderItem = orderItemIsExists(orderId, orderItemId);
+        orderItemsRepository.delete(orderItem);
+    }
+
+}
