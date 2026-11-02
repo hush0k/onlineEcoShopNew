@@ -10,6 +10,7 @@ import kz.kbtu.onlineecoshopnew.common.exception.category.HandleCategoryNotFound
 import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderAlreadyCompleted;
 import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderCanNotBeCancled;
 import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderNotFound;
+import kz.kbtu.onlineecoshopnew.common.exception.orderItems.HandleOrderItemNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.product.HandleNotEnoughProductQuantity;
 import kz.kbtu.onlineecoshopnew.common.exception.product.HandleProductNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleInvalidOldPassword;
@@ -30,7 +31,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({HandleUserNotFound.class, HandleUserNotFoundByEmail.class,
-            HandleProductNotFound.class, HandleCategoryNotFound.class, HandleOrderNotFound.class,})
+            HandleProductNotFound.class, HandleCategoryNotFound.class, HandleOrderNotFound.class, HandleOrderItemNotFound.class,})
     public ResponseEntity<ApiResponse<Void>> handleNotFound(RuntimeException exception) {
         return ApiResponse.errorResponse(HttpStatus.NOT_FOUND, exception.getMessage());
     }
