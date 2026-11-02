@@ -1,7 +1,7 @@
 package kz.kbtu.onlineecoshopnew.user.dto.request;
 
-import com.onlineShop.user.UserRole;
 import jakarta.validation.constraints.NotNull;
+import kz.kbtu.onlineecoshopnew.user.UserRole;
 
 public record UserRoleChangeDto(
 

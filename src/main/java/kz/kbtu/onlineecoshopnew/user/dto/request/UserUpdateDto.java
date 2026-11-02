@@ -1,18 +1,19 @@
 package kz.kbtu.onlineecoshopnew.user.dto.request;
 
-import jakarta.validation.constraints.*;
 
-import java.time.LocalDate;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public record UserUpdateDto(
         @Email
-        @Size(min=3, max=100)
+        @Size(min=3, max=40)
         String email,
 
-        @Size(min=3, max=100, message = "Size of first name should be more than 3 symbols and less than 100 symbols")
+        @Size(min=3, max=40, message = "Size of first name should be more than 3 symbols and less than 40 symbols")
         String firstName,
 
-        @Size(min=3, max=100, message = "Size of last name should be more than 3 symbols and less than 100 symbols")
+        @Size(min=3, max=40, message = "Size of last name should be more than 3 symbols and less than 40 symbols")
         String lastName,
 
         @Pattern(

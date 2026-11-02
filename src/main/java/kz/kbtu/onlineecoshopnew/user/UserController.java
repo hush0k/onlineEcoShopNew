@@ -1,16 +1,18 @@
 package kz.kbtu.onlineecoshopnew.user;
 
-import com.onlineShop.auth.AuthService;
-import com.onlineShop.auth.dto.RegisterRequestDto;
-import com.onlineShop.user.dto.request.UserPasswordChangeDto;
-import com.onlineShop.user.dto.request.UserRoleChangeDto;
-import com.onlineShop.user.dto.request.UserUpdateDto;
-import com.onlineShop.user.dto.response.UserResponseDto;
-import com.onlineShop.user.dto.response.UsersListResponseDto;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kz.kbtu.onlineecoshopnew.auth.AuthService;
+import kz.kbtu.onlineecoshopnew.auth.dto.RegisterRequestDto;
+import kz.kbtu.onlineecoshopnew.user.dto.request.UserPasswordChangeDto;
+import kz.kbtu.onlineecoshopnew.user.dto.request.UserRoleChangeDto;
+import kz.kbtu.onlineecoshopnew.user.dto.request.UserUpdateDto;
+import kz.kbtu.onlineecoshopnew.user.dto.response.UserResponseDto;
+import kz.kbtu.onlineecoshopnew.user.dto.response.UsersListResponseDto;
+import kz.kbtu.onlineecoshopnew.common.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,10 +20,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -34,52 +34,55 @@ public class UserController {
     private final AuthService authService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
-    public void createUser(@Valid @RequestBody RegisterRequestDto dto) {
+    public ResponseEntity<ApiResponse<Void>> createUser(@Valid @RequestBody RegisterRequestDto dto) {
         authService.register(dto);
+        return ApiResponse.created("User successfully created");
     }
 
     @PatchMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN') or @userService.isOwner(#userId, authentication.name)")
-    public UserResponseDto updateUser(@Valid @RequestBody UserUpdateDto dto, @PathVariable Long userId) {
-        return userService.updateUser(dto, userId);
+    public ResponseEntity<ApiResponse<UserResponseDto>> updateUser(@Valid @RequestBody UserUpdateDto dto,
+                                                                   @PathVariable Long userId) {
+        return ApiResponse.ok("User successfully updated", userService.updateUser(dto, userId));
     }
 
     @PatchMapping("/{userId}/role")
     @PreAuthorize("hasRole('ADMIN')")
-    public UserResponseDto updateUserRole(@Valid @RequestBody UserRoleChangeDto dto, @PathVariable Long userId) {
-        return userService.updateUserRole(dto, userId);
+    public ResponseEntity<ApiResponse<UserResponseDto>> updateUserRole(@Valid @RequestBody UserRoleChangeDto dto,
+                                                                       @PathVariable Long userId) {
+        return ApiResponse.ok("User role successfully updated", userService.updateUserRole(dto, userId));
     }
 
     @DeleteMapping("/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ADMIN') or @userService.isOwner(#userId, authentication.name)")
-    public void deleteUser(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
+        return ApiResponse.ok("User successfully deleted");
     }
 
     @GetMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public UserResponseDto getUser(@PathVariable Long userId) {
-        return userService.getUser(userId);
+    public ResponseEntity<ApiResponse<UserResponseDto>> getUser(@PathVariable Long userId) {
+        return ApiResponse.ok("User successfully retrieved", userService.getUser(userId));
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public UsersListResponseDto getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<ApiResponse<UsersListResponseDto>> getAllUsers() {
+        return ApiResponse.ok("Users successfully retrieved", userService.getAllUsers());
     }
 
     @GetMapping("/me")
-    public UserResponseDto getMe(@AuthenticationPrincipal String email) {
-        return userService.getUserByEmail(email);
+    public ResponseEntity<ApiResponse<UserResponseDto>> getMe(@AuthenticationPrincipal String email) {
+        return ApiResponse.ok("User successfully retrieved", userService.getUserByEmail(email));
     }
 
     @PatchMapping("/me/password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updatePassword(@Valid @RequestBody UserPasswordChangeDto dto, @AuthenticationPrincipal String email) {
+    public ResponseEntity<ApiResponse<Void>> updatePassword(@Valid @RequestBody UserPasswordChangeDto dto,
+                                                            @AuthenticationPrincipal String email) {
         userService.updatePassword(dto, email);
+        return ApiResponse.ok("Password successfully changed");
     }
 
 }

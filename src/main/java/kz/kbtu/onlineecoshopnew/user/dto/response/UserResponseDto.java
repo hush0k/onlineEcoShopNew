@@ -1,6 +1,7 @@
 package kz.kbtu.onlineecoshopnew.user.dto.response;
 
-import com.onlineShop.user.UserRole;
+
+import kz.kbtu.onlineecoshopnew.user.UserRole;
 
 import java.time.Instant;
 import java.time.LocalDate;

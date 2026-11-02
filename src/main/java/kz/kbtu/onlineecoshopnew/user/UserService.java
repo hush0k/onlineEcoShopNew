@@ -1,15 +1,16 @@
 package kz.kbtu.onlineecoshopnew.user;
 
-import com.onlineShop.exception.auth.HandleUserAlreadyExists;
-import com.onlineShop.exception.user.HandleInvalidOldPassword;
-import com.onlineShop.exception.user.HandleUserNotFound;
-import com.onlineShop.exception.user.HandleUserNotFoundByEmail;
-import com.onlineShop.user.dto.request.UserCreateDto;
-import com.onlineShop.user.dto.request.UserPasswordChangeDto;
-import com.onlineShop.user.dto.request.UserRoleChangeDto;
-import com.onlineShop.user.dto.request.UserUpdateDto;
-import com.onlineShop.user.dto.response.UserResponseDto;
-import com.onlineShop.user.dto.response.UsersListResponseDto;
+
+import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleUserAlreadyExists;
+import kz.kbtu.onlineecoshopnew.common.exception.user.HandleInvalidOldPassword;
+import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotFound;
+import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotFoundByEmail;
+import kz.kbtu.onlineecoshopnew.user.dto.request.UserCreateDto;
+import kz.kbtu.onlineecoshopnew.user.dto.request.UserPasswordChangeDto;
+import kz.kbtu.onlineecoshopnew.user.dto.request.UserRoleChangeDto;
+import kz.kbtu.onlineecoshopnew.user.dto.request.UserUpdateDto;
+import kz.kbtu.onlineecoshopnew.user.dto.response.UserResponseDto;
+import kz.kbtu.onlineecoshopnew.user.dto.response.UsersListResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

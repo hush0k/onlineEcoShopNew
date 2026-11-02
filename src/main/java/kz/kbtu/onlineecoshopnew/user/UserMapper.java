@@ -1,10 +1,16 @@
 package kz.kbtu.onlineecoshopnew.user;
 
-import com.onlineShop.user.dto.request.UserCreateDto;
-import com.onlineShop.user.dto.request.UserUpdateDto;
-import com.onlineShop.user.dto.response.UserResponseDto;
-import com.onlineShop.user.dto.response.UsersListResponseDto;
-import org.mapstruct.*;
+
+import kz.kbtu.onlineecoshopnew.user.dto.request.UserCreateDto;
+import kz.kbtu.onlineecoshopnew.user.dto.request.UserUpdateDto;
+import kz.kbtu.onlineecoshopnew.user.dto.response.UserResponseDto;
+import kz.kbtu.onlineecoshopnew.user.dto.response.UsersListResponseDto;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+
 
 import java.util.List;
 
