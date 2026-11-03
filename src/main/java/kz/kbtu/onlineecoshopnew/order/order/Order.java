@@ -1,6 +1,8 @@
 package kz.kbtu.onlineecoshopnew.order.order;
 
+import jakarta.persistence.OneToMany;
 import kz.kbtu.onlineecoshopnew.order.orderHistory.OrderStatus;
+import kz.kbtu.onlineecoshopnew.order.orderItems.OrederItems;
 import kz.kbtu.onlineecoshopnew.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,6 +25,9 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name="orders")
@@ -46,11 +51,15 @@ public class Order {
     @JoinColumn(name="user_id")
     private User user;
 
+    @OneToMany(mappedBy = "order", orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<OrederItems> items = new ArrayList<>();
+
     @Column(name="created_at")
     private Instant createdAt;
 
     @Column(name="predicted_date_of_delivery")
-    private Instant predictedDateOfDelivery;
+    private LocalDate predictedDateOfDelivery;
 
     @Column(name="status")
     @Enumerated(EnumType.STRING)

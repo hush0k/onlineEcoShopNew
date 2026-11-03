@@ -5,6 +5,7 @@ import kz.kbtu.onlineecoshopnew.order.orderHistory.OrderStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 
 public record OrderResponseDto(
         Long id,
@@ -17,7 +18,7 @@ public record OrderResponseDto(
         Currency currency,
         String deliveryCity,
         String deliveryAddress,
-        Instant predictedDateOfDelivery,
+        LocalDate predictedDateOfDelivery,
         Instant createdAt
 ) {
 }
