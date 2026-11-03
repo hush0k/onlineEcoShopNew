@@ -3,7 +3,7 @@ package kz.kbtu.onlineecoshopnew.order.order.dto.request;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Size;
 
-import java.time.Instant;
+import java.time.LocalDate;
 
 public record OrderUpdateDto(
 
@@ -14,6 +14,6 @@ public record OrderUpdateDto(
         String deliveryAddress,
 
         @Future(message = "Predicted date of delivery should be in the future")
-        Instant predictedDateOfDelivery
+        LocalDate predictedDateOfDelivery
 ) {
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.OneToMany;
 import kz.kbtu.onlineecoshopnew.order.orderHistory.OrderStatus;
 import kz.kbtu.onlineecoshopnew.order.orderItems.OrederItems;
 import kz.kbtu.onlineecoshopnew.user.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -51,7 +52,7 @@ public class Order {
     @JoinColumn(name="user_id")
     private User user;
 
-    @OneToMany(mappedBy = "order", orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<OrederItems> items = new ArrayList<>();
 
@@ -91,6 +92,7 @@ public class Order {
     }
 
     public void addItem(OrederItems item) {
+        item.setOrder(this);
         items.add(item);
     }
 }

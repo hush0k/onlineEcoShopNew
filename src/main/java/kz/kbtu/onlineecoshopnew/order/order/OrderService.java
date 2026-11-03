@@ -61,6 +61,16 @@ public class OrderService {
         );
     }
 
+    private void changeStatus(Order order, OrderStatus newStatus) {
+        order.setStatus(newStatus);
+        orderHistoryRepository.save(
+                OrderHistory.builder()
+                        .order(order)
+                        .status(newStatus)
+                        .build()
+        );
+    }
+
     @Transactional(readOnly = true)
     public OrderResponseDto getOrder(Long orderId) {
         return orderMapper.toOrderResponseDto(orderIsExists(orderId));
@@ -91,13 +101,7 @@ public class OrderService {
             throw new HandleOrderAlreadyCompleted(current);
         }
 
-        order.setStatus(dto.status());
-        orderHistoryRepository.save(
-                OrderHistory.builder()
-                        .order(order)
-                        .status(dto.status())
-                        .build()
-        );
+        changeStatus(order, dto.status());
         return orderMapper.toOrderResponseDto(order);
     }
 
@@ -114,18 +118,14 @@ public class OrderService {
 
     public OrderResponseDto updateOrderStatus(Long orderId) {
         Order order = orderIsExists(orderId);
-        OrderStatus nextStatus = order.getStatus().next();
-        order.setStatus(nextStatus);
-        Order updatedOrder = orderRepository.save(order);
-        return orderMapper.toOrderResponseDto(updatedOrder);
+        changeStatus(order, order.getStatus().next());
+        return orderMapper.toOrderResponseDto(order);
     }
 
     public OrderResponseDto cancelOrder(Long orderId) {
         Order order = orderIsExists(orderId);
-        OrderStatus cancelStatus = order.getStatus().cancel();
-        order.setStatus(cancelStatus);
-        Order updatedOrder = orderRepository.save(order);
-        return orderMapper.toOrderResponseDto(updatedOrder);
+        changeStatus(order, order.getStatus().cancel());
+        return orderMapper.toOrderResponseDto(order);
     }
 
     public OrderResponseDto createOrder(OrderCreateDto dto, String email) {
