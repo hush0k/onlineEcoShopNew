@@ -1,5 +1,6 @@
 package kz.kbtu.onlineecoshopnew.order.order;
 
+import kz.kbtu.onlineecoshopnew.order.order.dto.request.OrderCreateDto;
 import kz.kbtu.onlineecoshopnew.order.order.dto.request.OrderUpdateDto;
 import kz.kbtu.onlineecoshopnew.order.order.dto.response.OrderResponseDto;
 import org.mapstruct.BeanMapping;
@@ -10,6 +11,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
+
+    Order toOrder(OrderCreateDto dto);
 
     @Mapping(target = "userId", source = "user.id")
     OrderResponseDto toOrderResponseDto(Order order);
