@@ -24,6 +24,9 @@ spring:
 
   flyway:
     enabled: true
+    placeholders:
+      adminEmail: ${ADMIN_EMAIL:admin@ecoshop.kz}
+      adminPassword: ${ADMIN_PASSWORD}
 
   security:
     user:

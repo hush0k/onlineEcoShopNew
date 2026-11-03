@@ -1,5 +1,6 @@
 package kz.kbtu.onlineecoshopnew.auth;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kz.kbtu.onlineecoshopnew.auth.dto.AuthResponseDto;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@SecurityRequirements
 @Tag(name = "Auth", description = "Registration and login")
 public class AuthController {
 
