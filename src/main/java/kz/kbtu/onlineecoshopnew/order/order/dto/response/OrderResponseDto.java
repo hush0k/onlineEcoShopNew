@@ -13,7 +13,6 @@ public record OrderResponseDto(
         OrderStatus status,
         BigDecimal subPrice,
         BigDecimal deliveryPrice,
-        BigDecimal discount,
         BigDecimal totalPrice,
         Currency currency,
         String deliveryCity,

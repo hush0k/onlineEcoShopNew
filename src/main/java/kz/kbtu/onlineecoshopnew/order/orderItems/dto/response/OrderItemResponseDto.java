@@ -9,6 +9,7 @@ public record OrderItemResponseDto(
         UUID productId,
         String productName,
         Integer quantity,
-        BigDecimal price
+        BigDecimal price,
+        BigDecimal totalPrice
 ) {
 }
