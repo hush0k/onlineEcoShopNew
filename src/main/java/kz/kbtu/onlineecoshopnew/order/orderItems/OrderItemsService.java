@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
@@ -66,7 +67,9 @@ public class OrderItemsService {
                 .quantity(dto.quantity())
                 .build();
         orderItemsRepository.save(orderItem);
-        return orderItemsMapper.toOrderItemResponseDto(orderItem);
+        BigDecimal totalPrice = product.getPrice()
+                .multiply(BigDecimal.valueOf(dto.quantity()));
+        return orderItemsMapper.toOrderItemResponseDto(orderItem,  totalPrice);
     }
 
     public OrderItemResponseDto updateOrderItem(Long orderId, Long orderItemId, OrderItemUpdateDto dto) {
