@@ -71,9 +71,6 @@ public class Order {
     @Column(name="delivery_price")
     private BigDecimal deliveryPrice;
 
-    @Column(name="discount")
-    private BigDecimal discount;
-
     @Column(name="total_price")
     private BigDecimal totalPrice;
 
@@ -93,4 +90,7 @@ public class Order {
         createdAt = Instant.now();
     }
 
+    public void addItem(OrederItems item) {
+        items.add(item);
+    }
 }
