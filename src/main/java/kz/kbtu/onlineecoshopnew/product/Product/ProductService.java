@@ -13,6 +13,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -48,6 +50,11 @@ public class ProductService {
         return productMapper.toProductResponseDto(product);
     }
 
+    @Transactional(readOnly = true)
+    public List<Product> getProductsById(Set<UUID> productIds) {
+        return productRepository.findAllById(productIds);
+    }
+
     public ProductResponseDto createProduct(ProductCreateDto productCreateDto) {
         Product product = productMapper.toProduct(productCreateDto);
         productRepository.save(product);
@@ -65,7 +72,6 @@ public class ProductService {
         productRepository.deleteById(productId);
     }
 
-    @Transactional
     public void buyProduct(UUID productId, int quantity) {
         productIsExists(productId);
         int updated = productRepository.decreaseStock(productId, quantity);
