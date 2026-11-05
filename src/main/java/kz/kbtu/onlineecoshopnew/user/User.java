@@ -63,6 +63,13 @@ public class User {
     @Column(name="hashed_password")
     private String hashedPassword;
 
+    @Column(name="is_deleted", nullable = false)
+    @Builder.Default
+    private Boolean isDeleted = false;
+
+    @Column(name="deleted_at")
+    private LocalDate deletedAt;
+
     @Column(name="created_at")
     private Instant createdAt;
 
