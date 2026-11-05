@@ -15,6 +15,8 @@ import kz.kbtu.onlineecoshopnew.common.exception.product.HandleNotEnoughProductQ
 import kz.kbtu.onlineecoshopnew.common.exception.product.HandleProductNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.product.HandleProductsNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleInvalidOldPassword;
+import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserAlreadyDeleted;
+import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotDeleted;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotFoundByEmail;
 import org.springframework.http.HttpStatus;
@@ -44,7 +46,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({HandleUserAlreadyExists.class, HandleCategoryAlreadyExists.class,
-            HandleOrderAlreadyCompleted.class})
+            HandleOrderAlreadyCompleted.class, HandleUserAlreadyDeleted.class, HandleUserNotDeleted.class})
     public ResponseEntity<ApiResponse<Void>> handleConflict(RuntimeException exception) {
         return ApiResponse.errorResponse(HttpStatus.CONFLICT, exception.getMessage());
     }
