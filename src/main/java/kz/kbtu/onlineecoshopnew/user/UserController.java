@@ -57,7 +57,7 @@ public class UserController {
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN') or @userService.isOwner(#userId, authentication.name)")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long userId) {
-        userService.deleteUser(userId);
+        userService.deleteUserWrite(userId);
         return ApiResponse.ok("User successfully deleted");
     }
 
@@ -83,6 +83,11 @@ public class UserController {
                                                             @AuthenticationPrincipal String email) {
         userService.updatePassword(dto, email);
         return ApiResponse.ok("Password successfully changed");
+    }
+
+    @PostMapping("/me/recover")
+    public ResponseEntity<ApiResponse<UserResponseDto>> recoverUser(@AuthenticationPrincipal String email) {
+        return ApiResponse.ok("User successfully recovered", userService.recoverUser(email));
     }
 
 }
