@@ -3,6 +3,8 @@ package kz.kbtu.onlineecoshopnew.user;
 
 import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleUserAlreadyExists;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleInvalidOldPassword;
+import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserAlreadyDeleted;
+import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotDeleted;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotFoundByEmail;
 import kz.kbtu.onlineecoshopnew.user.dto.request.UserCreateDto;
@@ -77,7 +79,7 @@ public class UserService {
     public void deleteUserWrite(Long userId) {
         User user = getUserOrThrowException(userId);
         if (Boolean.TRUE.equals(user.getIsDeleted())) {
-            return;// сюда лучше создай новый исключение
+            throw new HandleUserAlreadyDeleted(userId);
         }
         user.setIsDeleted(true);
         user.setDeletedAt(LocalDate.now(ZoneId.of("Asia/Almaty")).plusMonths(3));
@@ -87,7 +89,7 @@ public class UserService {
     @Transactional
     public void deleteUsers() {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Almaty"));
-        List<User> users = userRepository.findAllByIsDeletedTrueAndPurgeDateLessThanEqual(today);
+        List<User> users = userRepository.findAllByIsDeletedTrueAndDeletedAtLessThanEqual(today);
 
         userRepository.deleteAll(users);
     }
@@ -95,6 +97,9 @@ public class UserService {
     @Transactional
     public UserResponseDto recoverUser(String email) {
         User user = getUserByEmaiOrThrowException(email);
+        if (!Boolean.TRUE.equals(user.getIsDeleted())) {
+            throw new HandleUserNotDeleted(email);
+        }
         user.setIsDeleted(false);
         user.setDeletedAt(null);
         return userMapper.toUserResponse(user);
