@@ -1,8 +1,6 @@
 package kz.kbtu.onlineecoshopnew.order.orderItems;
 
-import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderNotFound;
-import kz.kbtu.onlineecoshopnew.common.exception.orderItems.HandleOrderItemNotFound;
-import kz.kbtu.onlineecoshopnew.common.exception.product.HandleProductNotFound;
+import kz.kbtu.onlineecoshopnew.common.exception.HandleNotFound;
 import kz.kbtu.onlineecoshopnew.order.order.Order;
 import kz.kbtu.onlineecoshopnew.order.order.OrderRepository;
 import kz.kbtu.onlineecoshopnew.order.orderItems.dto.request.OrderItemCreateDto;
@@ -31,19 +29,19 @@ public class OrderItemsService {
 
     private OrederItems orderItemIsExists(Long orderId, Long orderItemId) {
         return orderItemsRepository.findByIdAndOrderId(orderItemId, orderId).orElseThrow(
-                () -> new HandleOrderItemNotFound(orderItemId)
+                () -> new HandleNotFound("Order item", orderItemId)
         );
     }
 
     private Order orderIsExists(Long orderId) {
         return orderRepository.findById(orderId).orElseThrow(
-                () -> new HandleOrderNotFound(orderId)
+                () -> new HandleNotFound("Order", orderId)
         );
     }
 
     private Product productIsExists(UUID productId) {
         return productRepository.findById(productId).orElseThrow(
-                () -> new HandleProductNotFound(productId)
+                () -> new HandleNotFound("Product", productId)
         );
     }
 

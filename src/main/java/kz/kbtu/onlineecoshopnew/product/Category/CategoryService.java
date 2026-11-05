@@ -1,7 +1,7 @@
 package kz.kbtu.onlineecoshopnew.product.Category;
 
-import kz.kbtu.onlineecoshopnew.common.exception.category.HandleCategoryAlreadyExists;
-import kz.kbtu.onlineecoshopnew.common.exception.category.HandleCategoryNotFound;
+import kz.kbtu.onlineecoshopnew.common.exception.HandleAlreadyExists;
+import kz.kbtu.onlineecoshopnew.common.exception.HandleNotFound;
 import kz.kbtu.onlineecoshopnew.product.Category.dto.request.CategoryCreateDto;
 import kz.kbtu.onlineecoshopnew.product.Category.dto.response.CategoriesListResponseDto;
 import kz.kbtu.onlineecoshopnew.product.Category.dto.response.CategoryResponseDto;
@@ -22,7 +22,7 @@ public class CategoryService {
 
     private Category categoryIsExists(UUID categoryId){
         return categoryRepository.findById(categoryId).orElseThrow(
-                () -> new HandleCategoryNotFound(categoryId)
+                () -> new HandleNotFound("Category", categoryId)
         );
     }
 
@@ -40,7 +40,7 @@ public class CategoryService {
 
     public CategoryResponseDto createCategory(CategoryCreateDto categoryCreateDto) {
         if (categoryRepository.existsByName(categoryCreateDto.name())) {
-            throw new HandleCategoryAlreadyExists(categoryCreateDto.name());
+            throw new HandleAlreadyExists("Category", "name", categoryCreateDto.name());
         }
 
         Category category = categoryMapper.toCategory(categoryCreateDto);

@@ -1,7 +1,7 @@
 package kz.kbtu.onlineecoshopnew.product.Product;
 
+import kz.kbtu.onlineecoshopnew.common.exception.HandleNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.product.HandleNotEnoughProductQuantity;
-import kz.kbtu.onlineecoshopnew.common.exception.product.HandleProductNotFound;
 import kz.kbtu.onlineecoshopnew.product.Product.dto.request.ProductCreateDto;
 import kz.kbtu.onlineecoshopnew.product.Product.dto.request.ProductFilter;
 import kz.kbtu.onlineecoshopnew.product.Product.dto.request.ProductUpdateDto;
@@ -27,7 +27,7 @@ public class ProductService {
 
     private Product productIsExists(UUID productId){
         return productRepository.findById(productId).orElseThrow(
-                () -> new HandleProductNotFound(productId)
+                () -> new HandleNotFound("Product", productId)
         );
     }
 

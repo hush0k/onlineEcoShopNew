@@ -4,21 +4,12 @@ package kz.kbtu.onlineecoshopnew.common.exception;
 import kz.kbtu.onlineecoshopnew.common.dto.ApiResponse;
 import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleInvalidCredentials;
 import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleInvalidRefreshToken;
-import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleUserAlreadyExists;
-import kz.kbtu.onlineecoshopnew.common.exception.category.HandleCategoryAlreadyExists;
-import kz.kbtu.onlineecoshopnew.common.exception.category.HandleCategoryNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderAlreadyCompleted;
 import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderCanNotBeCancled;
-import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderNotFound;
-import kz.kbtu.onlineecoshopnew.common.exception.orderItems.HandleOrderItemNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.product.HandleNotEnoughProductQuantity;
-import kz.kbtu.onlineecoshopnew.common.exception.product.HandleProductNotFound;
-import kz.kbtu.onlineecoshopnew.common.exception.product.HandleProductsNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleInvalidOldPassword;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserAlreadyDeleted;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotDeleted;
-import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotFound;
-import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotFoundByEmail;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -33,10 +24,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({HandleUserNotFound.class, HandleUserNotFoundByEmail.class,
-            HandleProductNotFound.class, HandleCategoryNotFound.class, HandleOrderNotFound.class,
-            HandleOrderItemNotFound.class, HandleProductsNotFound.class,})
-    public ResponseEntity<ApiResponse<Void>> handleNotFound(RuntimeException exception) {
+    @ExceptionHandler(HandleNotFound.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(HandleNotFound exception) {
         return ApiResponse.errorResponse(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
@@ -45,8 +34,7 @@ public class GlobalExceptionHandler {
         return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
-    @ExceptionHandler({HandleUserAlreadyExists.class, HandleCategoryAlreadyExists.class,
-            HandleOrderAlreadyCompleted.class, HandleUserAlreadyDeleted.class, HandleUserNotDeleted.class})
+    @ExceptionHandler({HandleAlreadyExists.class, HandleOrderAlreadyCompleted.class, HandleUserAlreadyDeleted.class, HandleUserNotDeleted.class})
     public ResponseEntity<ApiResponse<Void>> handleConflict(RuntimeException exception) {
         return ApiResponse.errorResponse(HttpStatus.CONFLICT, exception.getMessage());
     }

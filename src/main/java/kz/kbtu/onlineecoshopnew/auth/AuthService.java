@@ -1,5 +1,6 @@
 package kz.kbtu.onlineecoshopnew.auth;
 
+import kz.kbtu.onlineecoshopnew.common.exception.HandleAlreadyExists;
 
 import kz.kbtu.onlineecoshopnew.auth.dto.AuthResponseDto;
 import kz.kbtu.onlineecoshopnew.auth.dto.LoginRequestDto;
@@ -8,7 +9,6 @@ import kz.kbtu.onlineecoshopnew.auth.dto.RegisterRequestDto;
 import kz.kbtu.onlineecoshopnew.common.config.JwtProperties;
 import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleInvalidCredentials;
 import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleInvalidRefreshToken;
-import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleUserAlreadyExists;
 import kz.kbtu.onlineecoshopnew.user.User;
 import kz.kbtu.onlineecoshopnew.user.UserService;
 import kz.kbtu.onlineecoshopnew.user.dto.request.UserCreateDto;
@@ -41,7 +41,7 @@ public class AuthService {
         String email = getEmail(dto.email());
 
         if (userService.isEmailExists(email)) {
-            throw new HandleUserAlreadyExists(email);
+            throw new HandleAlreadyExists("User", "email", email);
         }
 
         String hashedPassword = passwordEncoder.encode(dto.password());

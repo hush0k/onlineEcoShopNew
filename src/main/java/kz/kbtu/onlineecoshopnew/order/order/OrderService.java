@@ -1,11 +1,8 @@
 package kz.kbtu.onlineecoshopnew.order.order;
 
+import kz.kbtu.onlineecoshopnew.common.exception.HandleNotFound;
 
 import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderAlreadyCompleted;
-import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderNotFound;
-import kz.kbtu.onlineecoshopnew.common.exception.product.HandleProductNotFound;
-import kz.kbtu.onlineecoshopnew.common.exception.product.HandleProductsNotFound;
-import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotFoundByEmail;
 import kz.kbtu.onlineecoshopnew.order.order.dto.request.OrderCreateDto;
 import kz.kbtu.onlineecoshopnew.order.order.dto.request.OrderStatusUpdateDto;
 import kz.kbtu.onlineecoshopnew.order.order.dto.request.OrderUpdateDto;
@@ -35,6 +32,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -57,7 +55,7 @@ public class OrderService {
 
     private Order orderIsExists(Long orderId) {
         return orderRepository.findById(orderId).orElseThrow(
-                () -> new HandleOrderNotFound(orderId)
+                () -> new HandleNotFound("Order", orderId)
         );
     }
 
@@ -130,7 +128,7 @@ public class OrderService {
 
     public OrderResponseDto createOrder(OrderCreateDto dto, String email) {
         User user = userService.findByEmail(email)
-                .orElseThrow(() -> new HandleUserNotFoundByEmail(email));
+                .orElseThrow(() -> new HandleNotFound("User", "email", email));
 
         Set<UUID> ids = dto.items().stream()
                 .map(OrderItemCreateDto::productId)
@@ -138,7 +136,9 @@ public class OrderService {
         Map<UUID, Product> products = productService.getProductsById(ids).stream()
                 .collect(Collectors.toMap(Product::getId, p -> p));
         if (products.size() != ids.size()) {
-            throw new HandleProductsNotFound(ids);
+            Set<UUID> missing = new HashSet<>(ids);
+            missing.removeAll(products.keySet());
+            throw new HandleNotFound("Product", "ids", missing);
         }
 
         Order order = orderMapper.toOrder(dto);

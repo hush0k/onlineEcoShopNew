@@ -1,12 +1,11 @@
 package kz.kbtu.onlineecoshopnew.user;
 
+import kz.kbtu.onlineecoshopnew.common.exception.HandleAlreadyExists;
+import kz.kbtu.onlineecoshopnew.common.exception.HandleNotFound;
 
-import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleUserAlreadyExists;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleInvalidOldPassword;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserAlreadyDeleted;
 import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotDeleted;
-import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotFound;
-import kz.kbtu.onlineecoshopnew.common.exception.user.HandleUserNotFoundByEmail;
 import kz.kbtu.onlineecoshopnew.user.dto.request.UserCreateDto;
 import kz.kbtu.onlineecoshopnew.user.dto.request.UserPasswordChangeDto;
 import kz.kbtu.onlineecoshopnew.user.dto.request.UserRoleChangeDto;
@@ -47,7 +46,7 @@ public class UserService {
         String email = dto.email().strip().toLowerCase(Locale.ROOT);
 
         if (!email.equals(user.getEmail()) && isEmailExists(email)) {
-            throw new HandleUserAlreadyExists(email);
+            throw new HandleAlreadyExists("User", "email", email);
         }
 
         userMapper.updateUserFromDto(dto, user);
@@ -139,13 +138,13 @@ public class UserService {
 
     private User getUserOrThrowException(Long userId) {
         return userRepository.findById(userId).orElseThrow(
-                () -> new HandleUserNotFound(userId)
+                () -> new HandleNotFound("User", userId)
         );
     }
 
     private User getUserByEmaiOrThrowException(String email) {
         return userRepository.findByEmail(email).orElseThrow(
-                () -> new HandleUserNotFoundByEmail(email)
+                () -> new HandleNotFound("User", "email", email)
         );
     }
 }
