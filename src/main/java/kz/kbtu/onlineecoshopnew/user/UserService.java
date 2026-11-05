@@ -12,43 +12,36 @@ import kz.kbtu.onlineecoshopnew.user.dto.request.UserUpdateDto;
 import kz.kbtu.onlineecoshopnew.user.dto.response.UserResponseDto;
 import kz.kbtu.onlineecoshopnew.user.dto.response.UsersListResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    private User findUser(Long userId) {
-        return userRepository.findById(userId).orElseThrow(
-                () -> new HandleUserNotFound(userId)
-        );
-    }
-
-    private User findUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(
-                () -> new HandleUserNotFoundByEmail(email)
-        );
-    }
-
+    @Transactional
     public UserResponseDto createUser(UserCreateDto dto) {
         User user = userMapper.toUser(dto);
         User saved = userRepository.save(user);
         return userMapper.toUserResponse(saved);
     }
 
+    @Transactional
     public UserResponseDto updateUser(UserUpdateDto dto, Long userId) {
-        User user = findUser(userId);
+        User user = getUserOrThrowException(userId);
         String email = dto.email().strip().toLowerCase(Locale.ROOT);
 
         if (!email.equals(user.getEmail()) && isEmailExists(email)) {
@@ -61,8 +54,9 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
+    @Transactional
     public void updatePassword(UserPasswordChangeDto dto, String email) {
-        User user = findUserByEmail(email);
+        User user = getUserByEmaiOrThrowException(email);
 
         if (!passwordEncoder.matches(dto.oldPassword(), user.getHashedPassword())) {
             throw new HandleInvalidOldPassword();
@@ -71,21 +65,44 @@ public class UserService {
         user.setHashedPassword(passwordEncoder.encode(dto.newPassword()));
     }
 
+    @Transactional
     public UserResponseDto updateUserRole(UserRoleChangeDto dto, Long userId) {
-        User user = findUser(userId);
+        User user = getUserOrThrowException(userId);
         user.setUserRole(dto.userRole());
         userRepository.flush();
         return userMapper.toUserResponse(user);
     }
 
-    public void deleteUser(Long userId) {
-        User user = findUser(userId);
-        userRepository.delete(user);
+    @Transactional
+    public void deleteUserWrite(Long userId) {
+        User user = getUserOrThrowException(userId);
+        if (Boolean.TRUE.equals(user.getIsDeleted())) {
+            return;// сюда лучше создай новый исключение
+        }
+        user.setIsDeleted(true);
+        user.setDeletedAt(LocalDate.now(ZoneId.of("Asia/Almaty")).plusMonths(3));
+    }
+
+    @Scheduled(cron = "0 5 0 * * *", zone = "Asia/Almaty")
+    @Transactional
+    public void deleteUsers() {
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Almaty"));
+        List<User> users = userRepository.findAllByIsDeletedTrueAndPurgeDateLessThanEqual(today);
+
+        userRepository.deleteAll(users);
+    }
+
+    @Transactional
+    public UserResponseDto recoverUser(String email) {
+        User user = getUserByEmaiOrThrowException(email);
+        user.setIsDeleted(false);
+        user.setDeletedAt(null);
+        return userMapper.toUserResponse(user);
     }
 
     @Transactional(readOnly = true)
     public UserResponseDto getUser(Long userId) {
-        return userMapper.toUserResponse(findUser(userId));
+        return userMapper.toUserResponse(getUserOrThrowException(userId));
     }
 
     @Transactional(readOnly = true)
@@ -105,7 +122,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponseDto getUserByEmail(String email) {
-        return userMapper.toUserResponse(findUserByEmail(email));
+        return userMapper.toUserResponse(getUserByEmaiOrThrowException(email));
     }
 
     @Transactional(readOnly = true)
@@ -113,5 +130,17 @@ public class UserService {
         return userRepository.findById(userId)
                 .map(user -> user.getEmail().equals(email))
                 .orElse(false);
+    }
+
+    private User getUserOrThrowException(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new HandleUserNotFound(userId)
+        );
+    }
+
+    private User getUserByEmaiOrThrowException(String email) {
+        return userRepository.findByEmail(email).orElseThrow(
+                () -> new HandleUserNotFoundByEmail(email)
+        );
     }
 }
