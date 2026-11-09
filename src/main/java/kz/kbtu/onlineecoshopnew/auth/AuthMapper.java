@@ -9,5 +9,5 @@ import org.mapstruct.Mapping;
 public interface AuthMapper {
     @Mapping(target = "email", source = "email")
     @Mapping(target = "hashedPassword", source = "hashedPassword")
-    UserCreateDto toUserCreateDto(RegisterRequestDto dto, String email, String hashedPassword);
+    UserCreateDto toUserCreateDto(RegisterRequestDto dto, String email, char[] hashedPassword);
 }

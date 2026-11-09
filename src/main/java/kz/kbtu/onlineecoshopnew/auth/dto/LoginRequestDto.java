@@ -1,8 +1,9 @@
 package kz.kbtu.onlineecoshopnew.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 
 public record LoginRequestDto(
         @NotBlank String email,
-        @NotBlank String password
+        @NotEmpty char[] password
 ) {}

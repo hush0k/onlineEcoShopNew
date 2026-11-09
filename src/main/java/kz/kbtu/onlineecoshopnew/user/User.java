@@ -61,7 +61,7 @@ public class User {
     private String phoneNumber;
 
     @Column(name="hashed_password")
-    private String hashedPassword;
+    private char[] hashedPassword;
 
     @Column(name="is_deleted", nullable = false)
     @Builder.Default

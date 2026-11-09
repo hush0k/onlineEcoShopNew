@@ -19,10 +19,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HexFormat;
 import java.util.Locale;
 import java.util.UUID;
@@ -57,7 +59,13 @@ public class AuthService {
             throw new HandleAlreadyExists("User", "email", email);
         }
 
-        String hashedPassword = passwordEncoder.encode(dto.password());
+        char[] hashedPassword;
+        try {
+            hashedPassword = passwordEncoder.encode(CharBuffer.wrap(dto.password())).toCharArray();
+        } finally {
+            Arrays.fill(dto.password(), '\0');
+            Arrays.fill(dto.confirmPassword(), '\0');
+        }
 
         UserCreateDto createDto = authMapper.toUserCreateDto(dto, email, hashedPassword);
         userService.createUser(createDto);
@@ -70,7 +78,15 @@ public class AuthService {
         User user = userService.findByEmail(email)
                 .orElseThrow(HandleInvalidCredentials::new);
 
-        if (!passwordEncoder.matches(dto.password(), user.getHashedPassword())) {
+        boolean isPasswordMatches;
+        try {
+            isPasswordMatches = passwordEncoder.matches(CharBuffer.wrap(dto.password()),
+                    new String(user.getHashedPassword()));
+        } finally {
+            Arrays.fill(dto.password(), '\0');
+        }
+
+        if (!isPasswordMatches) {
             throw new HandleInvalidCredentials();
         }
 

@@ -20,9 +20,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.CharBuffer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -61,11 +63,17 @@ public class UserService {
     public ResponseEntity<ApiResponse<Void>> updatePassword(UserPasswordChangeDto dto, String email) {
         User user = getUserByEmaiOrThrowException(email);
 
-        if (!passwordEncoder.matches(dto.oldPassword(), user.getHashedPassword())) {
-            throw new HandleInvalidOldPassword();
-        }
+        try {
+            if (!passwordEncoder.matches(CharBuffer.wrap(dto.oldPassword()), new String(user.getHashedPassword()))) {
+                throw new HandleInvalidOldPassword();
+            }
 
-        user.setHashedPassword(passwordEncoder.encode(dto.newPassword()));
+            user.setHashedPassword(passwordEncoder.encode(CharBuffer.wrap(dto.newPassword())).toCharArray());
+        } finally {
+            Arrays.fill(dto.oldPassword(), '\0');
+            Arrays.fill(dto.newPassword(), '\0');
+            Arrays.fill(dto.confirmPassword(), '\0');
+        }
         return ApiResponse.ok("Password successfully changed");
     }
 

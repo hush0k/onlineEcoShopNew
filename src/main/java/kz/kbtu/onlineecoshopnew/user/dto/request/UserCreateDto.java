@@ -2,6 +2,7 @@ package kz.kbtu.onlineecoshopnew.user.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -32,6 +33,6 @@ public record UserCreateDto(
         )
         String phoneNumber,
 
-        @NotBlank(message = "Hashed password field can not be empty")
-        String hashedPassword
+        @NotEmpty(message = "Hashed password field can not be empty")
+        char[] hashedPassword
 ) {}

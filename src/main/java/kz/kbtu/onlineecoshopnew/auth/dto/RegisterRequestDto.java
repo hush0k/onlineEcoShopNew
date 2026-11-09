@@ -3,11 +3,14 @@ package kz.kbtu.onlineecoshopnew.auth.dto;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.nio.CharBuffer;
 import java.time.LocalDate;
+import java.util.Arrays;
 
 public record RegisterRequestDto(
 
@@ -31,23 +34,30 @@ public record RegisterRequestDto(
         )
         String phoneNumber,
 
-        @NotBlank(message = "Password field can not be empty")
-        @Pattern(
-                regexp = "^(?=.*[A-Za-z])(?=.*\\d).{8,72}$",
-                message = "Your password must contain English letters and digits. Size should not be less than 8 " +
-                        "characters"
-        )
-        String password,
+        @NotEmpty(message = "Password field can not be empty")
+        char[] password,
 
-        @NotBlank(message = "Password field can not be empty")
-        String confirmPassword
+        @NotEmpty(message = "Password field can not be empty")
+        char[] confirmPassword
 ) {
+    private static final java.util.regex.Pattern PASSWORD_PATTERN =
+            java.util.regex.Pattern.compile("^(?=.*[A-Za-z])(?=.*\\d).{8,72}$");
+
+    @AssertTrue(message = "Your password must contain English letters and digits. Size should not be less than 8 " +
+            "characters")
+    public boolean isPasswordValid() {
+        if (password == null) {
+            return true;
+        }
+        return PASSWORD_PATTERN.matcher(CharBuffer.wrap(password)).matches();
+    }
+
     @AssertTrue(message = "Passwords do not match")
     public boolean isPasswordConfirmed() {
         if (password == null || confirmPassword == null) {
             return true;
         }
-        return password.equals(confirmPassword);
+        return Arrays.equals(password, confirmPassword);
     }
 }
 
