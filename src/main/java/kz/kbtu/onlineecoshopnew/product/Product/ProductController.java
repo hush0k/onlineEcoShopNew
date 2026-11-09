@@ -34,31 +34,30 @@ public class ProductController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ProductResponseDto>> createProduct(@Valid @RequestBody ProductCreateDto dto) {
-        return ApiResponse.created("Product successfully created", productService.createProduct(dto));
+        return productService.createProduct(dto);
     }
 
     @PatchMapping("/{productId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ProductResponseDto>> updateProduct(@Valid @RequestBody ProductUpdateDto dto,
                                                                          @PathVariable UUID productId) {
-        return ApiResponse.ok("Product successfully updated", productService.updateProduct(productId, dto));
+        return productService.updateProduct(productId, dto);
     }
 
     @DeleteMapping("/{productId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable UUID productId) {
-        productService.deleteProduct(productId);
-        return ApiResponse.ok("Product successfully deleted");
+        return productService.deleteProduct(productId);
     }
 
     @GetMapping("/{productId}")
     public ResponseEntity<ApiResponse<ProductResponseDto>> getProduct(@PathVariable UUID productId) {
-        return ApiResponse.ok("Product successfully retrieved", productService.getProduct(productId));
+        return productService.getProduct(productId);
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<ProductResponseDto>>> getProducts(ProductFilter filter, Pageable pageable) {
-        return ApiResponse.ok("Products successfully retrieved", productService.getProducts(filter, pageable));
+        return productService.getProducts(filter, pageable);
     }
 
 }

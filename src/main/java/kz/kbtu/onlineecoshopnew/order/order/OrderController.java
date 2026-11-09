@@ -33,59 +33,58 @@ public class OrderController {
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<Page<OrderResponseDto>>> getMyOrders(@AuthenticationPrincipal String email,
                                                                            Pageable pageable) {
-        return ApiResponse.ok("Orders successfully retrieved", orderService.getMyOrders(email, pageable));
+        return orderService.getMyOrders(email, pageable);
     }
 
     @GetMapping("/{orderId}")
     @PreAuthorize("hasRole('ADMIN') or @orderService.isOwner(#orderId, authentication.name)")
     public ResponseEntity<ApiResponse<OrderResponseDto>> getOrder(@PathVariable Long orderId) {
-        return ApiResponse.ok("Order successfully retrieved", orderService.getOrder(orderId));
+        return orderService.getOrder(orderId);
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Page<OrderResponseDto>>> getAllOrders(Pageable pageable) {
-        return ApiResponse.ok("Orders successfully retrieved", orderService.getAllOrders(pageable));
+        return orderService.getAllOrders(pageable);
     }
 
     @PatchMapping("/{orderId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<OrderResponseDto>> updateOrder(@Valid @RequestBody OrderUpdateDto dto,
                                                                      @PathVariable Long orderId) {
-        return ApiResponse.ok("Order successfully updated", orderService.updateOrder(orderId, dto));
+        return orderService.updateOrder(orderId, dto);
     }
 
     @PatchMapping("/{orderId}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<OrderResponseDto>> updateOrderStatus(@Valid @RequestBody OrderStatusUpdateDto dto,
                                                                            @PathVariable Long orderId) {
-        return ApiResponse.ok("Order status successfully updated", orderService.updateStatusOfOrder(orderId, dto));
+        return orderService.updateStatusOfOrder(orderId, dto);
     }
 
     @DeleteMapping("/{orderId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteOrder(@PathVariable Long orderId) {
-        orderService.deleteOrder(orderId);
-        return ApiResponse.ok("Order successfully deleted");
+        return orderService.deleteOrder(orderId);
     }
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<OrderResponseDto>> createOrder(@Valid @RequestBody OrderCreateDto dto,
                                                                      @AuthenticationPrincipal String email) {
-        return ApiResponse.created("Order successfully created", orderService.createOrder(dto, email));
+        return orderService.createOrder(dto, email);
     }
 
     @PatchMapping("/{orderId}/next-status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<OrderResponseDto>> moveToNextStatus(@PathVariable Long orderId) {
-        return ApiResponse.ok("Order moved to next status", orderService.updateOrderStatus(orderId));
+        return orderService.updateOrderStatus(orderId);
     }
 
     @PatchMapping("/{orderId}/cancel")
     @PreAuthorize("hasRole('ADMIN') or @orderService.isOwner(#orderId, authentication.name)")
     public ResponseEntity<ApiResponse<OrderResponseDto>> cancelOrder(@PathVariable Long orderId) {
-        return ApiResponse.ok("Order successfully cancelled", orderService.cancelOrder(orderId));
+        return orderService.cancelOrder(orderId);
     }
 
 }

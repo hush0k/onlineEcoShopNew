@@ -1,5 +1,6 @@
 package kz.kbtu.onlineecoshopnew.product.Product;
 
+import kz.kbtu.onlineecoshopnew.common.dto.ApiResponse;
 import kz.kbtu.onlineecoshopnew.common.exception.HandleNotFound;
 import kz.kbtu.onlineecoshopnew.common.exception.product.HandleNotEnoughProductQuantity;
 import kz.kbtu.onlineecoshopnew.product.Product.dto.request.ProductCreateDto;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +34,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductResponseDto> getProducts(ProductFilter filter, Pageable pageable) {
+    public ResponseEntity<ApiResponse<Page<ProductResponseDto>>> getProducts(ProductFilter filter, Pageable pageable) {
         Specification<Product> spec = Specification.allOf(
                 ProductSpecifications.hasCategory(filter.categoryId()),
                 ProductSpecifications.priceGte(filter.minPrice()),
@@ -41,13 +43,13 @@ public class ProductService {
                 ProductSpecifications.stockQuantityLte(filter.maxStockQuantity())
         );
         Page<Product> products = productRepository.findAllWithCategory(spec, pageable);
-        return products.map(productMapper::toProductResponseDto);
+        return ApiResponse.ok("Products successfully retrieved", products.map(productMapper::toProductResponseDto));
     }
 
     @Transactional(readOnly = true)
-    public ProductResponseDto getProduct(UUID productId) {
+    public ResponseEntity<ApiResponse<ProductResponseDto>> getProduct(UUID productId) {
         Product product = productIsExists(productId);
-        return productMapper.toProductResponseDto(product);
+        return ApiResponse.ok("Product successfully retrieved", productMapper.toProductResponseDto(product));
     }
 
     @Transactional(readOnly = true)
@@ -55,21 +57,22 @@ public class ProductService {
         return productRepository.findAllById(productIds);
     }
 
-    public ProductResponseDto createProduct(ProductCreateDto productCreateDto) {
+    public ResponseEntity<ApiResponse<ProductResponseDto>> createProduct(ProductCreateDto productCreateDto) {
         Product product = productMapper.toProduct(productCreateDto);
         productRepository.save(product);
-        return productMapper.toProductResponseDto(product);
+        return ApiResponse.created("Product successfully created", productMapper.toProductResponseDto(product));
     }
 
-    public ProductResponseDto updateProduct(UUID productId, ProductUpdateDto productUpdateDto) {
+    public ResponseEntity<ApiResponse<ProductResponseDto>> updateProduct(UUID productId, ProductUpdateDto productUpdateDto) {
         Product product = productIsExists(productId);
         productMapper.updateProductFromDto(productUpdateDto, product);
-        return productMapper.toProductResponseDto(product);
+        return ApiResponse.ok("Product successfully updated", productMapper.toProductResponseDto(product));
     }
 
-    public void deleteProduct(UUID productId) {
+    public ResponseEntity<ApiResponse<Void>> deleteProduct(UUID productId) {
         productIsExists(productId);
         productRepository.deleteById(productId);
+        return ApiResponse.ok("Product successfully deleted");
     }
 
     public void buyProduct(UUID productId, int quantity) {

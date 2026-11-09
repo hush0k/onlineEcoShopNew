@@ -36,58 +36,55 @@ public class UserController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> createUser(@Valid @RequestBody RegisterRequestDto dto) {
-        authService.register(dto);
-        return ApiResponse.created("User successfully created");
+        return authService.createUserByAdmin(dto);
     }
 
     @PatchMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN') or @userService.isOwner(#userId, authentication.name)")
     public ResponseEntity<ApiResponse<UserResponseDto>> updateUser(@Valid @RequestBody UserUpdateDto dto,
                                                                    @PathVariable Long userId) {
-        return ApiResponse.ok("User successfully updated", userService.updateUser(dto, userId));
+        return userService.updateUser(dto, userId);
     }
 
     @PatchMapping("/{userId}/role")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UserResponseDto>> updateUserRole(@Valid @RequestBody UserRoleChangeDto dto,
                                                                        @PathVariable Long userId) {
-        return ApiResponse.ok("User role successfully updated", userService.updateUserRole(dto, userId));
+        return userService.updateUserRole(dto, userId);
     }
 
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN') or @userService.isOwner(#userId, authentication.name)")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long userId) {
-        userService.deleteUserWrite(userId);
-        return ApiResponse.ok("User successfully deleted");
+        return userService.deleteUserWrite(userId);
     }
 
     @GetMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UserResponseDto>> getUser(@PathVariable Long userId) {
-        return ApiResponse.ok("User successfully retrieved", userService.getUser(userId));
+        return userService.getUser(userId);
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UsersListResponseDto>> getAllUsers() {
-        return ApiResponse.ok("Users successfully retrieved", userService.getAllUsers());
+        return userService.getAllUsers();
     }
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserResponseDto>> getMe(@AuthenticationPrincipal String email) {
-        return ApiResponse.ok("User successfully retrieved", userService.getUserByEmail(email));
+        return userService.getUserByEmail(email);
     }
 
     @PatchMapping("/me/password")
     public ResponseEntity<ApiResponse<Void>> updatePassword(@Valid @RequestBody UserPasswordChangeDto dto,
                                                             @AuthenticationPrincipal String email) {
-        userService.updatePassword(dto, email);
-        return ApiResponse.ok("Password successfully changed");
+        return userService.updatePassword(dto, email);
     }
 
     @PostMapping("/me/recover")
     public ResponseEntity<ApiResponse<UserResponseDto>> recoverUser(@AuthenticationPrincipal String email) {
-        return ApiResponse.ok("User successfully recovered", userService.recoverUser(email));
+        return userService.recoverUser(email);
     }
 
 }

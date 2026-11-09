@@ -26,18 +26,17 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody RegisterRequestDto dto) {
-        authService.register(dto);
-        return ApiResponse.created("User successfully registered");
+        return authService.register(dto);
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponseDto>> login(@Valid @RequestBody LoginRequestDto dto) {
-        return ApiResponse.ok("Login successful", authService.login(dto));
+        return authService.login(dto);
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<AuthResponseDto>> refresh(@Valid @RequestBody RefreshRequestDto dto) {
-        return ApiResponse.ok("Token successfully refreshed", authService.refresh(dto));
+        return authService.refresh(dto);
     }
 
 }

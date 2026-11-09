@@ -32,21 +32,21 @@ public class OrderItemsController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<OrderItemResponseDto>> createOrderItem(@Valid @RequestBody OrderItemCreateDto dto,
                                                                              @PathVariable Long orderId) {
-        return ApiResponse.created("Order item successfully created", orderItemsService.createOrderItem(orderId, dto));
+        return orderItemsService.createOrderItem(orderId, dto);
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or @orderService.isOwner(#orderId, authentication.name)")
     public ResponseEntity<ApiResponse<Page<OrderItemResponseDto>>> getOrderItems(@PathVariable Long orderId,
                                                                                  Pageable pageable) {
-        return ApiResponse.ok("Order items successfully retrieved", orderItemsService.getOrderItems(orderId, pageable));
+        return orderItemsService.getOrderItems(orderId, pageable);
     }
 
     @GetMapping("/{orderItemId}")
     @PreAuthorize("hasRole('ADMIN') or @orderService.isOwner(#orderId, authentication.name)")
     public ResponseEntity<ApiResponse<OrderItemResponseDto>> getOrderItem(@PathVariable Long orderId,
                                                                           @PathVariable Long orderItemId) {
-        return ApiResponse.ok("Order item successfully retrieved", orderItemsService.getOrderItem(orderId, orderItemId));
+        return orderItemsService.getOrderItem(orderId, orderItemId);
     }
 
     @PatchMapping("/{orderItemId}")
@@ -54,15 +54,13 @@ public class OrderItemsController {
     public ResponseEntity<ApiResponse<OrderItemResponseDto>> updateOrderItem(@Valid @RequestBody OrderItemUpdateDto dto,
                                                                              @PathVariable Long orderId,
                                                                              @PathVariable Long orderItemId) {
-        return ApiResponse.ok("Order item successfully updated",
-                orderItemsService.updateOrderItem(orderId, orderItemId, dto));
+        return orderItemsService.updateOrderItem(orderId, orderItemId, dto);
     }
 
     @DeleteMapping("/{orderItemId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteOrderItem(@PathVariable Long orderId,
                                                              @PathVariable Long orderItemId) {
-        orderItemsService.deleteOrderItem(orderId, orderItemId);
-        return ApiResponse.ok("Order item successfully deleted");
+        return orderItemsService.deleteOrderItem(orderId, orderItemId);
     }
 }

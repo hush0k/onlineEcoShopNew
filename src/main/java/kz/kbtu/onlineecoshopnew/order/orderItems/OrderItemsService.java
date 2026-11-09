@@ -1,5 +1,6 @@
 package kz.kbtu.onlineecoshopnew.order.orderItems;
 
+import kz.kbtu.onlineecoshopnew.common.dto.ApiResponse;
 import kz.kbtu.onlineecoshopnew.common.exception.HandleNotFound;
 import kz.kbtu.onlineecoshopnew.order.order.Order;
 import kz.kbtu.onlineecoshopnew.order.order.OrderRepository;
@@ -11,6 +12,7 @@ import kz.kbtu.onlineecoshopnew.product.Product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,17 +48,19 @@ public class OrderItemsService {
     }
 
     @Transactional(readOnly = true)
-    public OrderItemResponseDto getOrderItem(Long orderId, Long orderItemId) {
-        return orderItemsMapper.toOrderItemResponseDto(orderItemIsExists(orderId, orderItemId));
+    public ResponseEntity<ApiResponse<OrderItemResponseDto>> getOrderItem(Long orderId, Long orderItemId) {
+        return ApiResponse.ok("Order item successfully retrieved",
+                orderItemsMapper.toOrderItemResponseDto(orderItemIsExists(orderId, orderItemId)));
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderItemResponseDto> getOrderItems(Long orderId, Pageable pageable) {
+    public ResponseEntity<ApiResponse<Page<OrderItemResponseDto>>> getOrderItems(Long orderId, Pageable pageable) {
         orderIsExists(orderId);
-        return orderItemsRepository.findAllByOrderId(orderId, pageable).map(orderItemsMapper::toOrderItemResponseDto);
+        return ApiResponse.ok("Order items successfully retrieved",
+                orderItemsRepository.findAllByOrderId(orderId, pageable).map(orderItemsMapper::toOrderItemResponseDto));
     }
 
-    public OrderItemResponseDto createOrderItem(Long orderId, OrderItemCreateDto dto) {
+    public ResponseEntity<ApiResponse<OrderItemResponseDto>> createOrderItem(Long orderId, OrderItemCreateDto dto) {
         Order order = orderIsExists(orderId);
         Product product = productIsExists(dto.productId());
         OrederItems orderItem = OrederItems.builder()
@@ -67,19 +71,21 @@ public class OrderItemsService {
         orderItemsRepository.save(orderItem);
         BigDecimal totalPrice = product.getPrice()
                 .multiply(BigDecimal.valueOf(dto.quantity()));
-        return orderItemsMapper.toOrderItemResponseDto(orderItem,  totalPrice);
+        return ApiResponse.created("Order item successfully created",
+                orderItemsMapper.toOrderItemResponseDto(orderItem, totalPrice));
     }
 
-    public OrderItemResponseDto updateOrderItem(Long orderId, Long orderItemId, OrderItemUpdateDto dto) {
+    public ResponseEntity<ApiResponse<OrderItemResponseDto>> updateOrderItem(Long orderId, Long orderItemId, OrderItemUpdateDto dto) {
         OrederItems orderItem = orderItemIsExists(orderId, orderItemId);
         orderItemsMapper.updateOrderItemFromDto(dto, orderItem);
         orderItemsRepository.flush();
-        return orderItemsMapper.toOrderItemResponseDto(orderItem);
+        return ApiResponse.ok("Order item successfully updated", orderItemsMapper.toOrderItemResponseDto(orderItem));
     }
 
-    public void deleteOrderItem(Long orderId, Long orderItemId) {
+    public ResponseEntity<ApiResponse<Void>> deleteOrderItem(Long orderId, Long orderItemId) {
         OrederItems orderItem = orderItemIsExists(orderId, orderItemId);
         orderItemsRepository.delete(orderItem);
+        return ApiResponse.ok("Order item successfully deleted");
     }
 
 }

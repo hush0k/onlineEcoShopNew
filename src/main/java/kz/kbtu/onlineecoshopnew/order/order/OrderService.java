@@ -1,5 +1,6 @@
 package kz.kbtu.onlineecoshopnew.order.order;
 
+import kz.kbtu.onlineecoshopnew.common.dto.ApiResponse;
 import kz.kbtu.onlineecoshopnew.common.exception.HandleNotFound;
 
 import kz.kbtu.onlineecoshopnew.common.exception.order.HandleOrderAlreadyCompleted;
@@ -23,6 +24,7 @@ import kz.kbtu.onlineecoshopnew.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,28 +72,28 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public OrderResponseDto getOrder(Long orderId) {
-        return orderMapper.toOrderResponseDto(orderIsExists(orderId));
+    public ResponseEntity<ApiResponse<OrderResponseDto>> getOrder(Long orderId) {
+        return ApiResponse.ok("Order successfully retrieved", orderMapper.toOrderResponseDto(orderIsExists(orderId)));
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderResponseDto> getAllOrders(Pageable pageable) {
-        return orderRepository.findAll(pageable).map(orderMapper::toOrderResponseDto);
+    public ResponseEntity<ApiResponse<Page<OrderResponseDto>>> getAllOrders(Pageable pageable) {
+        return ApiResponse.ok("Orders successfully retrieved", orderRepository.findAll(pageable).map(orderMapper::toOrderResponseDto));
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderResponseDto> getMyOrders(String email, Pageable pageable) {
-        return orderRepository.findAllByUserEmail(email, pageable).map(orderMapper::toOrderResponseDto);
+    public ResponseEntity<ApiResponse<Page<OrderResponseDto>>> getMyOrders(String email, Pageable pageable) {
+        return ApiResponse.ok("Orders successfully retrieved", orderRepository.findAllByUserEmail(email, pageable).map(orderMapper::toOrderResponseDto));
     }
 
-    public OrderResponseDto updateOrder(Long orderId, OrderUpdateDto dto) {
+    public ResponseEntity<ApiResponse<OrderResponseDto>> updateOrder(Long orderId, OrderUpdateDto dto) {
         Order order = orderIsExists(orderId);
         orderMapper.updateOrderFromDto(dto, order);
         orderRepository.flush();
-        return orderMapper.toOrderResponseDto(order);
+        return ApiResponse.ok("Order successfully updated", orderMapper.toOrderResponseDto(order));
     }
 
-    public OrderResponseDto updateStatusOfOrder(Long orderId, OrderStatusUpdateDto dto) {
+    public ResponseEntity<ApiResponse<OrderResponseDto>> updateStatusOfOrder(Long orderId, OrderStatusUpdateDto dto) {
         Order order = orderIsExists(orderId);
         OrderStatus current = order.getStatus();
 
@@ -100,13 +102,14 @@ public class OrderService {
         }
 
         changeStatus(order, dto.status());
-        return orderMapper.toOrderResponseDto(order);
+        return ApiResponse.ok("Order status successfully updated", orderMapper.toOrderResponseDto(order));
     }
 
-    public void deleteOrder(Long orderId) {
+    public ResponseEntity<ApiResponse<Void>> deleteOrder(Long orderId) {
         Order order = orderIsExists(orderId);
         orderHistoryRepository.deleteAllByOrder(order);
         orderRepository.delete(order);
+        return ApiResponse.ok("Order successfully deleted");
     }
 
     @Transactional(readOnly = true)
@@ -114,19 +117,19 @@ public class OrderService {
         return orderRepository.existsByIdAndUserEmail(orderId, email);
     }
 
-    public OrderResponseDto updateOrderStatus(Long orderId) {
+    public ResponseEntity<ApiResponse<OrderResponseDto>> updateOrderStatus(Long orderId) {
         Order order = orderIsExists(orderId);
         changeStatus(order, order.getStatus().next());
-        return orderMapper.toOrderResponseDto(order);
+        return ApiResponse.ok("Order moved to next status", orderMapper.toOrderResponseDto(order));
     }
 
-    public OrderResponseDto cancelOrder(Long orderId) {
+    public ResponseEntity<ApiResponse<OrderResponseDto>> cancelOrder(Long orderId) {
         Order order = orderIsExists(orderId);
         changeStatus(order, order.getStatus().cancel());
-        return orderMapper.toOrderResponseDto(order);
+        return ApiResponse.ok("Order successfully cancelled", orderMapper.toOrderResponseDto(order));
     }
 
-    public OrderResponseDto createOrder(OrderCreateDto dto, String email) {
+    public ResponseEntity<ApiResponse<OrderResponseDto>> createOrder(OrderCreateDto dto, String email) {
         User user = userService.findByEmail(email)
                 .orElseThrow(() -> new HandleNotFound("User", "email", email));
 
@@ -167,6 +170,6 @@ public class OrderService {
         Order saved = orderRepository.save(order);
         orderHistoryService.createOrderHistory(new OrderHistoryCreateDto(saved.getId(), OrderStatus.CREATED));
 
-        return orderMapper.toOrderResponseDto(saved);
+        return ApiResponse.created("Order successfully created", orderMapper.toOrderResponseDto(saved));
     }
 }

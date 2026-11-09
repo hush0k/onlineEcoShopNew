@@ -7,12 +7,14 @@ import kz.kbtu.onlineecoshopnew.auth.dto.LoginRequestDto;
 import kz.kbtu.onlineecoshopnew.auth.dto.RefreshRequestDto;
 import kz.kbtu.onlineecoshopnew.auth.dto.RegisterRequestDto;
 import kz.kbtu.onlineecoshopnew.common.config.JwtProperties;
+import kz.kbtu.onlineecoshopnew.common.dto.ApiResponse;
 import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleInvalidCredentials;
 import kz.kbtu.onlineecoshopnew.common.exception.auth.HandleInvalidRefreshToken;
 import kz.kbtu.onlineecoshopnew.user.User;
 import kz.kbtu.onlineecoshopnew.user.UserService;
 import kz.kbtu.onlineecoshopnew.user.dto.request.UserCreateDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +28,6 @@ import java.util.Locale;
 import java.util.UUID;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -37,7 +38,19 @@ public class AuthService {
     private final JwtService jwtService;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public void register(RegisterRequestDto dto) {
+    @Transactional
+    public ResponseEntity<ApiResponse<Void>> register(RegisterRequestDto dto) {
+        createAccount(dto);
+        return ApiResponse.created("User successfully registered");
+    }
+
+    @Transactional
+    public ResponseEntity<ApiResponse<Void>> createUserByAdmin(RegisterRequestDto dto) {
+        createAccount(dto);
+        return ApiResponse.created("User successfully created");
+    }
+
+    private void createAccount(RegisterRequestDto dto) {
         String email = getEmail(dto.email());
 
         if (userService.isEmailExists(email)) {
@@ -51,7 +64,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponseDto login(LoginRequestDto dto) {
+    public ResponseEntity<ApiResponse<AuthResponseDto>> login(LoginRequestDto dto) {
         String email = getEmail(dto.email());
 
         User user = userService.findByEmail(email)
@@ -64,11 +77,11 @@ public class AuthService {
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = createRefreshToken(user);
 
-        return new AuthResponseDto(accessToken, refreshToken);
+        return ApiResponse.ok("Login successful", new AuthResponseDto(accessToken, refreshToken));
     }
 
     @Transactional(noRollbackFor = HandleInvalidRefreshToken.class)
-    public AuthResponseDto refresh(RefreshRequestDto dto) {
+    public ResponseEntity<ApiResponse<AuthResponseDto>> refresh(RefreshRequestDto dto) {
         RefreshToken storedToken = refreshTokenRepository.findByTokenHash(hashToken(dto.refreshToken()))
                 .orElseThrow(HandleInvalidRefreshToken::new);
 
@@ -82,7 +95,7 @@ public class AuthService {
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = createRefreshToken(user);
 
-        return new AuthResponseDto(accessToken, refreshToken);
+        return ApiResponse.ok("Token successfully refreshed", new AuthResponseDto(accessToken, refreshToken));
     }
 
     private String createRefreshToken(User user) {

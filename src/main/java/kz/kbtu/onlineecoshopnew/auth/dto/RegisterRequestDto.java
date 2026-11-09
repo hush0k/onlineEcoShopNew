@@ -13,13 +13,13 @@ public record RegisterRequestDto(
 
         @NotBlank(message = "Email can not be empty!")
         @Email
-        @Size(min=3, max=100)
+        @Size(min=3, max=50)
         String email,
 
-        @Size(min=3, max=100, message = "Size of first name should be more than 3 symbols and less than 100 symbols")
+        @Size(min=3, max=50, message = "Size of first name should be more than 3 symbols and less than 100 symbols")
         String firstName,
 
-        @Size(min=3, max=100, message = "Size of last name should be more than 3 symbols and less than 100 symbols")
+        @Size(min=3, max=50, message = "Size of last name should be more than 3 symbols and less than 100 symbols")
         String lastName,
 
         @Past(message = "Date of birth should be in past time")

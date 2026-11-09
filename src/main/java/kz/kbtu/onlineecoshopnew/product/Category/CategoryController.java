@@ -30,24 +30,23 @@ public class CategoryController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<CategoryResponseDto>> createCategory(@Valid @RequestBody CategoryCreateDto dto) {
-        return ApiResponse.created("Category successfully created", categoryService.createCategory(dto));
+        return categoryService.createCategory(dto);
     }
 
     @DeleteMapping("/{categoryId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable UUID categoryId) {
-        categoryService.deleteCategory(categoryId);
-        return ApiResponse.ok("Category successfully deleted");
+        return categoryService.deleteCategory(categoryId);
     }
 
     @GetMapping("/{categoryId}")
     public ResponseEntity<ApiResponse<CategoryResponseDto>> getCategory(@PathVariable UUID categoryId) {
-        return ApiResponse.ok("Category successfully retrieved", categoryService.getCategory(categoryId));
+        return categoryService.getCategory(categoryId);
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<CategoriesListResponseDto>> getCategories() {
-        return ApiResponse.ok("Categories successfully retrieved", categoryService.getCategories());
+        return categoryService.getCategories();
     }
 
 }
